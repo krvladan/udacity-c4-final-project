@@ -2,32 +2,23 @@ import 'source-map-support/register'
 
 import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
 import { TodoItem } from '../../models/TodoItem'
+import { createLogger } from '../../utils/logger'
+import { getUserId } from '../utils'
+
+import * as AWS from 'aws-sdk'
+import { DocumentClient } from 'aws-sdk/clients/dynamodb'
+
+const docClient: DocumentClient = new AWS.DynamoDB.DocumentClient()
+const todosTable = process.env.TODOS_TABLE
+
+const logger = createLogger('getTodos')
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  console.log('Processing event', JSON.stringify(event))
+  logger.info('Processing event', event)
 
-  // TODO: Get all TODO items for a current user
+  const userId = getUserId(event)
 
-  const todoItems: Array<TodoItem> = [
-      {
-        userId: "1",
-        todoId: "123",
-        createdAt: "2019-07-27T20:01:45.424Z",
-        name: "Buy milk",
-        dueDate: "2019-07-29T20:01:45.424Z",
-        done: false,
-        attachmentUrl: "http://example.com/image.png"
-      },
-      {
-        userId: "1",
-        todoId: "456",
-        createdAt: "2019-07-27T20:01:45.424Z",
-        name: "Send a letter",
-        dueDate: "2019-07-29T20:01:45.424Z",
-        done: true,
-        attachmentUrl: "http://example.com/image.png"
-      },
-    ]
+  const todoItems = await getTodos(userId)
 
   return {
     statusCode: 200,
@@ -38,4 +29,22 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
       items: todoItems
     })
   }
+}
+
+async function getTodos(userId: string) : Promise<TodoItem[]> {
+  logger.info('Getting all todos')
+
+  const result = await docClient.query({
+    TableName: todosTable,
+    KeyConditionExpression: 'userId = :userId',
+    ExpressionAttributeValues: {
+      ':userId': userId
+    },
+    ScanIndexForward: false
+  }).promise()
+
+  logger.info('Query result', result);
+  
+  const items = result.Items
+  return items as TodoItem[]
 }

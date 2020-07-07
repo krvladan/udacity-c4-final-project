@@ -12,12 +12,14 @@ provider:
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'eu-central-1'}
 
+  environment:
+    TODOS_TABLE: Todos-${self:provider.stage}
+
 functions:
 
   Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
 
-  # TODO: Configure this function
   GetTodos:
     handler: src/lambda/http/getTodos.handler
     events:
@@ -26,6 +28,11 @@ functions:
           path: todos
           cors: true
           authorizer: Auth
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
   # TODO: Configure this function
   # CreateTodo:
@@ -59,6 +66,22 @@ functions:
   #         method: post
   #         path: todos/{todoId}/attachment
 
-# resources:
-#   Resources:
-    # TODO: Add any necessary AWS resources
+resources:
+  Resources:
+    TodosDynamoDBTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: createdAt
+            AttributeType: S
+          # - AttributeName: todoId
+          #   AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+          - AttributeName: createdAt
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:provider.environment.TODOS_TABLE}
