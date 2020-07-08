@@ -32,4 +32,15 @@ export class TodosAccess {
     return items as TodoItem[]
   }
 
+async createTodo(todoItem: TodoItem): Promise<TodoItem> {
+  this.logger.info('Put item', todoItem)
+
+  await this.docClient.put({
+    TableName: this.todosTable,
+    Item: todoItem
+  }).promise()
+
+  return todoItem
+}
+
 }
