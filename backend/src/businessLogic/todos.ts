@@ -33,3 +33,7 @@ export async function createTodo(
 export async function updateTodo(userId: string, itemId: string, updateRequest: UpdateTodoRequest) {
   await todosAccess.updateTodo(userId, itemId, updateRequest)
 }
+
+export async function deleteTodo(userId: string, itemId: string) {
+  await todosAccess.deleteTodo(userId, itemId)
+}

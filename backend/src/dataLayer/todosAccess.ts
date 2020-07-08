@@ -68,4 +68,17 @@ async updateTodo(userId: string, itemId: string, updateRequest: UpdateTodoReques
   this.logger.info("Update result", result)
 }
 
+async deleteTodo(userId: string, todoId: string) {
+  this.logger.info('Delete item', {userId, todoId})
+
+  await this.docClient.delete({
+    TableName: this.todosTable,
+    Key: {
+      userId,
+      todoId
+    }
+  }).promise()
+
+}
+
 }
