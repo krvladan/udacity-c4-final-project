@@ -4,6 +4,7 @@ import * as AWS from 'aws-sdk'
 import { TodoItem } from "../models/TodoItem";
 import { Logger } from "winston";
 import { createLogger } from "../utils/logger"
+import { UpdateTodoRequest } from "../requests/UpdateTodoRequest";
 
 export class TodosAccess {
   constructor(
@@ -41,6 +42,30 @@ async createTodo(todoItem: TodoItem): Promise<TodoItem> {
   }).promise()
 
   return todoItem
+}
+
+async updateTodo(userId: string, itemId: string, updateRequest: UpdateTodoRequest) {
+  this.logger.info('Update item', {userId, itemId, updateRequest})
+  
+  const result = await this.docClient.update({
+    TableName: this.todosTable,
+    Key: {
+      "userId": userId,
+      "todoId": itemId
+    },
+    UpdateExpression: "SET #nm=:n, dueDate=:dd, done=:dn",
+    ExpressionAttributeValues: {
+      ":n": updateRequest.name,
+      ":dd": updateRequest.dueDate,
+      ":dn": updateRequest.done
+    },
+    ExpressionAttributeNames: {
+      "#nm": "name"
+    },
+    ReturnValues:"UPDATED_NEW"
+  }).promise()
+
+  this.logger.info("Update result", result)
 }
 
 }
