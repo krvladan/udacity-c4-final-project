@@ -7,6 +7,7 @@ plugins:
   - serverless-reqvalidator-plugin
   - serverless-aws-documentation
 
+# run `export NODE_OPTIONS="--max-old-space-size=4096"`, or comment out the following two lines:
 package:
   individually: true
   
@@ -113,7 +114,7 @@ functions:
             summary: Update todo
             description: Update todo
             requestModels:
-              'application/json': CreateTodoRequest
+              'application/json': UpdateTodoRequest
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -230,7 +231,7 @@ resources:
         ResponseParameters:
           gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
           gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-          gatewayresponse.header.Access-Control-Allow-Methods: "'GET,OPTIONS,POST'"
+          gatewayresponse.header.Access-Control-Allow-Methods: "'GET,OPTIONS,POST,PATCH'"
         ResponseType: DEFAULT_4XX
         RestApiId:
           Ref: ApiGatewayRestApi
