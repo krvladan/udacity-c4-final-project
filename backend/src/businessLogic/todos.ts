@@ -4,6 +4,7 @@ import { TodoItem } from '../models/TodoItem'
 import { TodosAccess } from '../dataLayer/todosAccess'
 import { CreateTodoRequest } from '../requests/CreateTodoRequest'
 import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
+import { deleteAttachment } from './attachment'
 
 const todosAccess = new TodosAccess()
 
@@ -35,9 +36,14 @@ export async function updateTodo(userId: string, itemId: string, updateRequest: 
 }
 
 export async function deleteTodo(userId: string, itemId: string) {
-  await todosAccess.deleteTodo(userId, itemId)
+  const todoItem = await todosAccess.deleteTodo(userId, itemId)
+
+  const attachmentUrl = todoItem.attachmentUrl
+  if(attachmentUrl) {
+    await deleteAttachment(attachmentUrl)
+  }
 }
 
-export async function addAttachment(userId: string, todoId: string, url: string) {
+export async function addAttachmentUrl(userId: string, todoId: string, url: string) {
   await todosAccess.addAttachmentUrl(userId, todoId, url)
 }

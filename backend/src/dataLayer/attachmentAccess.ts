@@ -17,7 +17,7 @@ export class AttachmentAccess {
   ) {}
 
   getSignedUrl(attachmentId: string): AttachmentItem {
-    this.logger.info('Get signed url', {attachmentId})
+    this.logger.info('getSignedUrl', {attachmentId})
 
     const uploadUrl = this.s3.getSignedUrl('putObject', {
       Bucket: this.bucketName,
@@ -27,11 +27,22 @@ export class AttachmentAccess {
 
     const attachmentUrl = `https://${this.bucketName}.s3.amazonaws.com/${attachmentId}`
 
-    this.logger.info('Generated', {uploadUrl, attachmentUrl})
+    this.logger.info('getSignedUrl result', {uploadUrl, attachmentUrl})
 
     return { 
       uploadUrl,
       attachmentUrl
     }
+  }
+
+  async deleteAttachment(attachmentId: string) {
+    this.logger.info('deleteAttachment', {attachmentId})
+
+    const result = await this.s3.deleteObject({
+      Bucket: this.bucketName,
+      Key: attachmentId
+    }).promise()
+
+    this.logger.info('deleteAttachment result', result)
   }
 }

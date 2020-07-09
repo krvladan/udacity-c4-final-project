@@ -15,7 +15,7 @@ export class TodosAccess {
   ) {}
 
   async getTodos(userId: string) : Promise<TodoItem[]> {
-    this.logger.info('Getting all todos')
+    this.logger.info('getTodos', {userId})
   
     const result = await this.docClient.query({
       TableName: this.todosTable,
@@ -27,14 +27,14 @@ export class TodosAccess {
       ScanIndexForward: false
     }).promise()
   
-    this.logger.info('Query result', result);
+    this.logger.info('getTodos query result', result);
     
     const items = result.Items
     return items as TodoItem[]
   }
 
 async createTodo(todoItem: TodoItem): Promise<TodoItem> {
-  this.logger.info('Put item', todoItem)
+  this.logger.info('createTodo', todoItem)
 
   await this.docClient.put({
     TableName: this.todosTable,
@@ -45,7 +45,7 @@ async createTodo(todoItem: TodoItem): Promise<TodoItem> {
 }
 
 async updateTodo(userId: string, itemId: string, updateRequest: UpdateTodoRequest) {
-  this.logger.info('Update item', {userId, itemId, updateRequest})
+  this.logger.info('updateTodo', {userId, itemId, updateRequest})
   
   const result = await this.docClient.update({
     TableName: this.todosTable,
@@ -65,23 +65,30 @@ async updateTodo(userId: string, itemId: string, updateRequest: UpdateTodoReques
     ReturnValues:"UPDATED_NEW"
   }).promise()
 
-  this.logger.info("Update result", result)
+  this.logger.info("updateTodo query result", result)
 }
 
-async deleteTodo(userId: string, todoId: string) {
-  this.logger.info('Delete item', {userId, todoId})
+async deleteTodo(userId: string, todoId: string): Promise<TodoItem> {
+  this.logger.info('deleteTodo', {userId, todoId})
 
-  await this.docClient.delete({
+  const result = await this.docClient.delete({
     TableName: this.todosTable,
     Key: {
       userId,
       todoId
-    }
+    },
+    ReturnValues: 'ALL_OLD'
   }).promise()
+
+  const todoItem = result.Attributes as TodoItem
+
+  this.logger.info('deleteTodo result', {todoItem})
+
+  return todoItem
 }
 
 async addAttachmentUrl(userId: string, todoId: string, url: string) {
-  this.logger.info('Add attachment', {userId, todoId, url})
+  this.logger.info('addAttachmentUrl', {userId, todoId, url})
 
   const result = await this.docClient.update({
     TableName: this.todosTable,
@@ -96,7 +103,7 @@ async addAttachmentUrl(userId: string, todoId: string, url: string) {
     ReturnValues:"UPDATED_NEW"
   }).promise()
 
-  this.logger.info("Update result", result)
+  this.logger.info("addAttachmentUrl result", result)
 }
 
 }
