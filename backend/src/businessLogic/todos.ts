@@ -37,3 +37,7 @@ export async function updateTodo(userId: string, itemId: string, updateRequest: 
 export async function deleteTodo(userId: string, itemId: string) {
   await todosAccess.deleteTodo(userId, itemId)
 }
+
+export async function addAttachment(userId: string, todoId: string, url: string) {
+  await todosAccess.addAttachmentUrl(userId, todoId, url)
+}

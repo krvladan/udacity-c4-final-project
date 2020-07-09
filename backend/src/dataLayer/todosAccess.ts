@@ -78,7 +78,25 @@ async deleteTodo(userId: string, todoId: string) {
       todoId
     }
   }).promise()
+}
 
+async addAttachmentUrl(userId: string, todoId: string, url: string) {
+  this.logger.info('Add attachment', {userId, todoId, url})
+
+  const result = await this.docClient.update({
+    TableName: this.todosTable,
+    Key: {
+      "userId": userId,
+      "todoId": todoId
+    },
+    UpdateExpression: "SET attachmentUrl=:x",
+    ExpressionAttributeValues: {
+      ":x": url
+    },
+    ReturnValues:"UPDATED_NEW"
+  }).promise()
+
+  this.logger.info("Update result", result)
 }
 
 }
