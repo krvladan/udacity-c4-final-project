@@ -1,7 +1,10 @@
 import * as AWS from 'aws-sdk'
+import * as AWSXray from 'aws-xray-sdk'
 
 import { createLogger } from "../utils/logger"
 import { Logger } from 'winston'
+
+const XAWS = AWSXray.captureAWS(AWS)
 
 export interface AttachmentItem {
   uploadUrl: string
@@ -10,7 +13,7 @@ export interface AttachmentItem {
 
 export class AttachmentAccess {
   constructor(
-    private readonly s3 = new AWS.S3({signatureVersion: 'v4'}),
+    private readonly s3 = new XAWS.S3({signatureVersion: 'v4'}),
     private readonly bucketName = process.env.ATTACHMENTS_S3_BUCKET,
     private readonly urlExpiration = process.env.SIGNED_URL_EXPIRATION,
     private readonly logger : Logger = createLogger('AttachmentAccess')

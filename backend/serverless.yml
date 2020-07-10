@@ -6,6 +6,8 @@ plugins:
   - serverless-iam-roles-per-function
   - serverless-reqvalidator-plugin
   - serverless-aws-documentation
+  - serverless-plugin-tracing
+  
 
 # run `export NODE_OPTIONS="--max-old-space-size=4096"`, or comment out the following two lines:
 package:
@@ -17,6 +19,10 @@ provider:
 
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'eu-central-1'}
+
+  tracing:
+    lambda: true
+    apiGateway: true
 
   environment:
     TODOS_TABLE: Todos-${self:provider.stage}
