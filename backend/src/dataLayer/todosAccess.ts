@@ -4,8 +4,6 @@ import * as AWSXray from 'aws-xray-sdk'
 import { DocumentClient } from "aws-sdk/clients/dynamodb"
 
 import { TodoItem } from "../models/TodoItem";
-import { Logger } from "winston";
-import { createLogger } from "../utils/logger"
 import { UpdateTodoRequest } from "../requests/UpdateTodoRequest";
 
 const XAWS = AWSXray.captureAWS(AWS)
@@ -14,12 +12,11 @@ export class TodosAccess {
   constructor(
     private readonly docClient: DocumentClient = new XAWS.DynamoDB.DocumentClient(),
     private readonly todosTable = process.env.TODOS_TABLE,
-    private readonly createdAtIndex = process.env.CREATED_AT_INDEX,
-    private readonly logger : Logger = createLogger('TodosAccess')
+    private readonly createdAtIndex = process.env.CREATED_AT_INDEX
   ) {}
 
   async getTodos(userId: string) : Promise<TodoItem[]> {
-    this.logger.info('getTodos', {userId})
+    console.log('getTodos', {userId})
   
     const result = await this.docClient.query({
       TableName: this.todosTable,
@@ -31,14 +28,14 @@ export class TodosAccess {
       ScanIndexForward: false
     }).promise()
   
-    this.logger.info('getTodos query result', result);
+    console.log('getTodos query result', result);
     
     const items = result.Items
     return items as TodoItem[]
   }
 
 async createTodo(todoItem: TodoItem): Promise<TodoItem> {
-  this.logger.info('createTodo', todoItem)
+  console.log('createTodo', todoItem)
 
   await this.docClient.put({
     TableName: this.todosTable,
@@ -49,7 +46,7 @@ async createTodo(todoItem: TodoItem): Promise<TodoItem> {
 }
 
 async updateTodo(userId: string, itemId: string, updateRequest: UpdateTodoRequest) {
-  this.logger.info('updateTodo', {userId, itemId, updateRequest})
+  console.log('updateTodo', {userId, itemId, updateRequest})
   
   const result = await this.docClient.update({
     TableName: this.todosTable,
@@ -69,11 +66,11 @@ async updateTodo(userId: string, itemId: string, updateRequest: UpdateTodoReques
     ReturnValues:"UPDATED_NEW"
   }).promise()
 
-  this.logger.info("updateTodo query result", result)
+  console.log("updateTodo query result", result)
 }
 
 async deleteTodo(userId: string, todoId: string): Promise<TodoItem> {
-  this.logger.info('deleteTodo', {userId, todoId})
+  console.log('deleteTodo', {userId, todoId})
 
   const result = await this.docClient.delete({
     TableName: this.todosTable,
@@ -86,13 +83,13 @@ async deleteTodo(userId: string, todoId: string): Promise<TodoItem> {
 
   const todoItem = result.Attributes as TodoItem
 
-  this.logger.info('deleteTodo result', {todoItem})
+  console.log('deleteTodo result', {todoItem})
 
   return todoItem
 }
 
 async addAttachmentUrl(userId: string, todoId: string, url: string) {
-  this.logger.info('addAttachmentUrl', {userId, todoId, url})
+  console.log('addAttachmentUrl', {userId, todoId, url})
 
   const result = await this.docClient.update({
     TableName: this.todosTable,
@@ -107,7 +104,7 @@ async addAttachmentUrl(userId: string, todoId: string, url: string) {
     ReturnValues:"UPDATED_NEW"
   }).promise()
 
-  this.logger.info("addAttachmentUrl result", result)
+  console.log("addAttachmentUrl result", result)
 }
 
 }
