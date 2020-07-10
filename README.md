@@ -34,7 +34,7 @@ export const authConfig = {
 
 ## Authentication
 
-For authentication to work, you can create a free account at `https://auth0.com/`. There you will need to create an application. Select a single page application and assymetric verification type. Then copy the public certificate and paste it to `./backend/src/lambda/auth/auth0Authorizer.ts`.
+For authentication to work, you can create a free account at `https://auth0.com/`. There you will need to create an application. Select a single page application and assymetric verification type. Then paste JSON Web Key Set url to `./backend/src/lambda/auth/auth0Authorizer.ts`.
 Also, set the `clientId` variable in frontend's `config.ts`.
 
 # How to run the application
